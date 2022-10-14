@@ -5,13 +5,18 @@ from django.contrib import auth
 # Create your views here.
 def signup(request):
     if request.method == "GET":
-        return render(request, 'user/signup.html')
+        return render(request, 'signup.html')
     
     elif request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        phone = request.POST.get('phone')
-        address = request.POST.get('address')
+        user = User()
+        
+        user.username = request.POST.get('username', '')
+        # user.password = request.POST.get('password', ''), 
+        #패스워드느 set_password로 설정해야한다!!
+        user.set_password(request.POST.get('password', ''))
+        user.phone = request.POST.get('phone', '')
+        user.address = request.POST.get('address', '')
+        user.save()
         
         return redirect('/login')
 
@@ -25,7 +30,7 @@ def login(request):
             auth.login(request, user)
             return redirect('/home')
         else:
-            return render(request, 'user/login.html')
+            return render(request, 'login.html')
         
     
     elif request.method == "GET":
@@ -34,4 +39,12 @@ def login(request):
         if user: 
             return redirect('/home')
         else: #로그인이 되어있지 않으면
-            return render(request, 'user/login.html')
+            return render(request, 'login.html')
+        
+        
+def home(request):
+    if request.method == 'GET':
+        if request.user.is_anonymous:
+            return redirect('/login/')
+        
+        return render(request, 'home.html')
